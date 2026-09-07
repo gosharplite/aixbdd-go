@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>銷售機會與階段推進 - CRM 系統</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --panel: #111827;
+      --card: #1f2937;
+      --card-hover: #283548;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --border: #374151;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --purple: #8b5cf6;
+      --danger: #ef4444;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Navbar */
+    .navbar {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .brand-badge {
+      background: linear-gradient(135deg, var(--primary), var(--purple));
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      color: white;
+      font-size: 16px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 12px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .nav-links a:hover, .nav-links a.active {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .role-simulator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+    }
+
+    select.sim-select {
+      background: transparent;
+      border: none;
+      color: #fca5a5;
+      font-weight: 700;
+      outline: none;
+      cursor: pointer;
+    }
+
+    select.sim-select option {
+      background: var(--panel);
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .breadcrumb {
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .breadcrumb a { color: var(--muted); text-decoration: none; }
+    .breadcrumb a:hover { color: var(--text); }
+
+    /* Opportunity Header Card */
+    .opp-hero {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .opp-title-area h1 {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .opp-meta {
+      display: flex;
+      gap: 20px;
+      font-size: 14px;
+      color: var(--muted);
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+
+    .opp-amount-block {
+      text-align: right;
+    }
+
+    .amount-label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .amount-val {
+      font-size: 32px;
+      font-weight: 800;
+      color: #60a5fa;
+      margin-top: 4px;
+    }
+
+    /* Stage Progression Stepper */
+    .stepper-panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .stepper-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .stepper {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+
+    .step-node {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .step-node.completed {
+      background: rgba(59, 130, 246, 0.15);
+      border-color: var(--primary);
+      color: #93c5fd;
+    }
+
+    .step-node.current {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(139, 92, 246, 0.25));
+      border-color: #60a5fa;
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+      color: white;
+      font-weight: 700;
+    }
+
+    .step-node.won {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: var(--success);
+      color: #34d399;
+      font-weight: 700;
+    }
+
+    .step-number {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .step-name {
+      font-size: 14px;
+    }
+
+    /* Action Toolbar for Stage Progression */
+    .actions-panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .action-prompt {
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); }
+
+    .btn-success { background: var(--success); color: white; }
+    .btn-success:hover { background: #059669; }
+
+    .btn-danger { background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid var(--danger); }
+    .btn-danger:hover { background: rgba(239, 68, 68, 0.3); }
+
+    /* Opportunity Details Grid */
+    .details-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 24px;
+    }
+
+    .panel-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .field-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 14px;
+    }
+
+    .field-row:last-child { border-bottom: none; }
+    .field-label { color: var(--muted); }
+    .field-val { font-weight: 600; color: var(--text); }
+
+    /* Alert Box */
+    .alert-box {
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-size: 13px;
+      line-height: 1.5;
+      display: none;
+    }
+
+    .alert-danger {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid var(--danger);
+      color: #fca5a5;
+    }
+
+    .alert-success {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid var(--success);
+      color: #6ee7b7;
+    }
+
+    @media (max-width: 800px) {
+      .stepper { grid-template-columns: 1fr; }
+      .details-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <nav class="navbar">
+    <a href="index.html" class="brand">
+      <div class="brand-badge">C</div>
+      <span>CRM Core Platform</span>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="index.html">銷售管線 (Pipeline)</a></li>
+      <li><a href="customers.html">客戶與公司名冊</a></li>
+      <li><a href="opportunity-detail.html" class="active">機會推進範例</a></li>
+    </ul>
+
+    <!-- Role Simulator for Acceptance Testing -->
+    <div class="role-simulator">
+      <span>🛡️ 模擬登入身分：</span>
+      <select class="sim-select" id="actorSelector" onchange="onActorChange()">
+        <option value="Alice">Alice (本機會負責業務 - 具修改權)</option>
+        <option value="Bob">Bob (非負責業務 - 無修改權，觸發拒絕)</option>
+        <option value="Carol">Carol (業務主管 - 具全局推進權)</option>
+      </select>
+    </div>
+  </nav>
+
+  <main class="container">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <a href="index.html">銷售管線</a>
+      <span>/</span>
+      <a href="customers.html">水球軟體</a>
+      <span>/</span>
+      <span style="color: var(--text);">企業版授權合約</span>
+    </div>
+
+    <!-- Alert Box for RBAC Feedback -->
+    <div class="alert-box" id="alertNotice"></div>
+
+    <!-- Opportunity Header -->
+    <section class="opp-hero">
+      <div class="opp-title-area">
+        <h1>企業版授權合約</h1>
+        <div class="opp-meta">
+          <span>🏢 關聯企業：<a href="customer-detail.html" style="color: #60a5fa; text-decoration: none;">水球軟體</a></span>
+          <span>👤 決策者：王大明 (技術長)</span>
+          <span>💼 負責業務：<strong style="color: #38bdf8;">Alice</strong></span>
+          <span>📅 預計成交日：2026-06-30</span>
+        </div>
+      </div>
+      <div class="opp-amount-block">
+        <div class="amount-label">預估合約金額</div>
+        <div class="amount-val">NT$ 300,000</div>
+      </div>
+    </section>
+
+    <!-- Visual Stepper -->
+    <section class="stepper-panel">
+      <div class="stepper-title">
+        <span>銷售機會推進流程 (Sales Stages)</span>
+        <span id="currentStageBadge" style="color: var(--warning);">目前所處階段：2. 已聯繫</span>
+      </div>
+
+      <div class="stepper">
+        <div class="step-node completed" id="step-1">
+          <div class="step-number">階段 1</div>
+          <div class="step-name">潛在 (Prospect)</div>
+        </div>
+        <div class="step-node current" id="step-2">
+          <div class="step-number">階段 2</div>
+          <div class="step-name">已聯繫 (Contacted)</div>
+        </div>
+        <div class="step-node" id="step-3">
+          <div class="step-number">階段 3</div>
+          <div class="step-name">提案中 (Proposal)</div>
+        </div>
+        <div class="step-node" id="step-4">
+          <div class="step-number">階段 4</div>
+          <div class="step-name">已成交 (Won)</div>
+        </div>
+        <div class="step-node" id="step-5">
+          <div class="step-number">階段 5</div>
+          <div class="step-name">已失敗 (Lost)</div>
+        </div>
+      </div>
+
+      <!-- Action Toolbar -->
+      <div class="actions-panel">
+        <div class="action-prompt" id="actionHint">
+          目前階段為<strong>「已聯繫」</strong>。訪談達成共識後，可推進至提案中。
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" id="btnAdvanceProposal" onclick="attemptAdvanceStage(3, '提案中')">
+            推進到「提案中」 →
+          </button>
+          <button class="btn btn-success" id="btnAdvanceWon" onclick="attemptAdvanceStage(4, '已成交')">
+            標記為「已成交」 ✓
+          </button>
+          <button class="btn btn-danger" onclick="attemptAdvanceStage(5, '已失敗')">
+            標記為已失敗 ✕
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Details Grid -->
+    <div class="details-grid">
+      <!-- Left: Audit & Deal Overview -->
+      <section class="panel">
+        <div class="panel-title">階段流轉與稽核紀錄</div>
+        <div style="font-size: 13px; color: var(--muted); line-height: 1.6;" id="auditLogList">
+          <div style="padding: 10px 0; border-bottom: 1px solid var(--border);">
+            <strong style="color: var(--text);">2026-03-22 16:00</strong> · 負責人 <strong>Alice</strong> 推進階段至「已聯繫」 (完成初步電話接洽)
+          </div>
+          <div style="padding: 10px 0;">
+            <strong style="color: var(--text);">2026-03-20 09:30</strong> · 負責人 <strong>Alice</strong> 建立銷售機會「企業版授權合約」 (初始階段：潛在，預估金額 NT$ 300,000)
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: Deal Metadata -->
+      <section class="panel">
+        <div class="panel-title">基本資料</div>
+        <div class="field-row">
+          <span class="field-label">機會編號</span>
+          <span class="field-val">OPP-2026-0042</span>
+        </div>
+        <div class="field-row">
+          <span class="field-label">幣別</span>
+          <span class="field-val">新台幣 (TWD)</span>
+        </div>
+        <div class="field-row">
+          <span class="field-label">關聯聯絡紀錄</span>
+          <span class="field-val"><a href="customer-detail.html" style="color: #60a5fa; text-decoration: none;">2 筆互動歷程</a></span>
+        </div>
+        <div class="field-row">
+          <span class="field-label">權限控管規則</span>
+          <span class="field-val" style="color: #fcd34d;">僅負責人與主管可推動</span>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    let currentStage = 2; // 1: 潛在, 2: 已聯繫, 3: 提案中, 4: 已成交, 5: 已失敗
+
+    function onActorChange() {
+      const actor = document.getElementById("actorSelector").value;
+      const alertNotice = document.getElementById("alertNotice");
+      alertNotice.style.display = "none";
+
+      if (actor === "Bob") {
+        showAlert("danger", "⚠️ 模擬狀態：您目前切換為「Bob（非負責業務）」。依據 CRM RBAC 規則，非負責業務無權推進 Alice 負責之銷售機會，嘗試點擊推進將被系統拒絕！");
+      } else if (actor === "Carol") {
+        showAlert("success", "👤 模擬狀態：您目前為「Carol（業務主管）」，具備跨人員最高管理與推進權限。");
+      } else {
+        showAlert("success", "👤 模擬狀態：您目前為「Alice（負責業務）」，具備推進自身機會之權限。");
+      }
+    }
+
+    function showAlert(type, message) {
+      const el = document.getElementById("alertNotice");
+      el.className = "alert-box " + (type === "danger" ? "alert-danger" : "alert-success");
+      el.innerHTML = message;
+      el.style.display = "block";
+    }
+
+    function attemptAdvanceStage(targetStage, targetName) {
+      const actor = document.getElementById("actorSelector").value;
+
+      // Acceptance Criteria Rule Check:
+      // Only Assigned Owner (Alice) or Manager (Carol) can advance stages.
+      // If Bob (non-owner and non-manager) attempts to advance, reject!
+      if (actor === "Bob") {
+        showAlert(
+          "danger",
+          `<strong>⛔ 系統拒絕這次操作！</strong><br>
+           原因：使用者「Bob」不是該銷售機會之負責人（Alice），亦非業務主管。<br>
+           <strong>銷售機會維持原本階段「已聯繫」</strong>，未做任何更動。（符合驗收規範：非負責人且非主管不可推進銷售機會）`
+        );
+        return;
+      }
+
+      // Valid action by Alice or Carol
+      currentStage = targetStage;
+      updateStageUI(targetStage, targetName, actor);
+    }
+
+    function updateStageUI(stage, name, actor) {
+      // Update nodes
+      for (let i = 1; i <= 5; i++) {
+        const node = document.getElementById(`step-${i}`);
+        node.className = "step-node";
+        if (i < stage) {
+          node.classList.add("completed");
+        } else if (i === stage) {
+          if (stage === 4) node.classList.add("won");
+          else node.classList.add("current");
+        }
+      }
+
+      document.getElementById("currentStageBadge").textContent = `目前所處階段：${stage}. ${name}`;
+      document.getElementById("actionHint").innerHTML = `階段已由 <strong>${actor}</strong> 成功推進至 <strong>「${name}」</strong>！`;
+
+      showAlert("success", `✓ 操作成功！銷售機會目前階段已推進為<strong>「${name}」</strong>，操作人：${actor}。`);
+
+      // Add audit log
+      const nowStr = new Date().toISOString().replace("T", " ").slice(0, 16);
+      const auditDiv = document.getElementById("auditLogList");
+      const newLog = document.createElement("div");
+      newLog.style.padding = "10px 0";
+      newLog.style.borderBottom = "1px solid var(--border)";
+      newLog.innerHTML = `<strong style="color: var(--text);">${nowStr}</strong> · <strong>${actor}</strong> 將銷售機會推進至「${name}」 (系統狀態流轉完成)`;
+      auditDiv.prepend(newLog);
+    }
+
+    // Initialize
+    onActorChange();
+  </script>
+</body>
+</html>

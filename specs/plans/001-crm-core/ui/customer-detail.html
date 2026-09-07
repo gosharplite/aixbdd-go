@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>客戶歷程與聯絡記錄 - CRM 系統</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --panel: #111827;
+      --card: #1f2937;
+      --card-hover: #283548;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --border: #374151;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --purple: #8b5cf6;
+      --danger: #ef4444;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Navbar */
+    .navbar {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .brand-badge {
+      background: linear-gradient(135deg, var(--primary), var(--purple));
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      color: white;
+      font-size: 16px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 12px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .nav-links a:hover, .nav-links a.active {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .container {
+      max-width: 1300px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .breadcrumb {
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .breadcrumb a {
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover { color: var(--text); }
+
+    /* Profile Header */
+    .profile-hero {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .profile-info h1 {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .company-tag {
+      font-size: 14px;
+      font-weight: 500;
+      color: #60a5fa;
+      background: rgba(59, 130, 246, 0.12);
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    .profile-meta {
+      display: flex;
+      gap: 24px;
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* Next Action Highlight Card */
+    .next-action-card {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15));
+      border: 1px solid rgba(96, 165, 250, 0.3);
+      border-radius: 14px;
+      padding: 18px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .next-action-title {
+      font-size: 13px;
+      color: #93c5fd;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .next-action-desc {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .next-action-date {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      color: #fcd34d;
+      font-weight: 600;
+    }
+
+    /* Grid: Left (Forms & Deals) vs Right (Timeline) */
+    .content-grid {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 24px;
+      align-items: flex-start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 24px;
+    }
+
+    .panel-header {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Form */
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 10px 12px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .form-group input:focus, .form-group textarea:focus {
+      border-color: var(--primary);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 18px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .btn:hover { background: var(--primary-hover); }
+
+    /* Timeline */
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+      padding-left: 28px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      top: 10px;
+      bottom: 10px;
+      left: 10px;
+      width: 2px;
+      background: var(--border);
+    }
+
+    .timeline-item {
+      position: relative;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: -24px;
+      top: 18px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--primary);
+      border: 3px solid var(--panel);
+    }
+
+    .timeline-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .type-badge {
+      display: inline-flex;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.08);
+      color: #93c5fd;
+    }
+
+    .timeline-content {
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text);
+    }
+
+    .timeline-next {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      color: #fcd34d;
+      margin-top: 4px;
+    }
+
+    /* Associated Deals list */
+    .deal-link-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-decoration: none;
+      color: inherit;
+      margin-bottom: 8px;
+      transition: all 0.15s;
+    }
+
+    .deal-link-card:hover {
+      border-color: var(--primary);
+      transform: translateX(3px);
+    }
+
+    @media (max-width: 900px) {
+      .content-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <nav class="navbar">
+    <a href="index.html" class="brand">
+      <div class="brand-badge">C</div>
+      <span>CRM Core Platform</span>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="index.html">銷售管線 (Pipeline)</a></li>
+      <li><a href="customers.html" class="active">客戶與公司名冊</a></li>
+      <li><a href="opportunity-detail.html">機會推進範例</a></li>
+    </ul>
+
+    <div style="font-size: 13px; color: var(--muted);">
+      負責業務：<strong style="color: var(--text);">Alice</strong>
+    </div>
+  </nav>
+
+  <!-- Container -->
+  <main class="container">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <a href="customers.html">客戶名冊</a>
+      <span>/</span>
+      <span>水球軟體</span>
+      <span>/</span>
+      <span style="color: var(--text);">王大明 (技術長)</span>
+    </div>
+
+    <!-- Profile Hero -->
+    <section class="profile-hero">
+      <div class="profile-info">
+        <h1>
+          <span>王大明</span>
+          <span class="company-tag">水球軟體 · 技術長 (CTO)</span>
+        </h1>
+        <div class="profile-meta">
+          <span>📧 daming.wang@test.com</span>
+          <span>📞 0912-345-678</span>
+          <span>📍 台北市信義區信義路五段 7 號</span>
+          <span>👤 負責業務：Alice</span>
+        </div>
+      </div>
+      <div>
+        <a href="opportunity-detail.html?deal=cloud" class="btn">查看關聯銷售機會 →</a>
+      </div>
+    </section>
+
+    <!-- Highlighted Next Action Banner -->
+    <section class="next-action-card">
+      <div>
+        <div class="next-action-title">📌 目前最新待辦 · 下一步行動</div>
+        <div class="next-action-desc" id="currentNextAction">9 月 5 日前提供正式提案</div>
+      </div>
+      <div class="next-action-date">
+        <span>⏰ 預計執行日：</span>
+        <strong id="currentNextActionDate">2026-09-05</strong>
+      </div>
+    </section>
+
+    <!-- Main Grid -->
+    <div class="content-grid">
+      <!-- Left Column: Form & Deals -->
+      <div style="display: flex; flex-direction: column; gap: 20px;">
+        
+        <!-- Log Interaction Form -->
+        <section class="panel">
+          <div class="panel-header">
+            <span>+ 記錄聯絡內容與下一步</span>
+          </div>
+          <form onsubmit="handleLogInteraction(event)">
+            <div class="form-group">
+              <label>聯絡方式 *</label>
+              <select id="interactionTypeSelect">
+                <option value="電話">電話通話 (Phone)</option>
+                <option value="會議">實體/線上會議 (Meeting)</option>
+                <option value="Email">電子郵件 (Email)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>聯絡時間</label>
+              <input type="datetime-local" id="interactionTimeInput" />
+            </div>
+            <div class="form-group">
+              <label>聯絡內容摘要 *</label>
+              <textarea id="interactionNotesInput" placeholder="說明本次訪談重點、客戶疑慮與反饋..." required></textarea>
+            </div>
+            <div class="form-group">
+              <label>設定下一步行動 (Next Action)</label>
+              <input type="text" id="nextActionInput" placeholder="例如：9 月 5 日提供正式提案" />
+            </div>
+            <div class="form-group">
+              <label>下一步預計執行日期</label>
+              <input type="date" id="nextActionDateInput" />
+            </div>
+            <button type="submit" class="btn" style="width: 100%;">儲存聯絡紀錄</button>
+          </form>
+        </section>
+
+        <!-- Associated Deals -->
+        <section class="panel">
+          <div class="panel-header">
+            <span>關聯銷售機會 (Deals)</span>
+            <span style="font-size: 12px; color: var(--muted);">共 1 筆</span>
+          </div>
+          <a href="opportunity-detail.html?deal=cloud" class="deal-link-card">
+            <div>
+              <div style="font-weight: 700; font-size: 14px;">雲端遷移專案</div>
+              <div style="font-size: 12px; color: var(--muted); margin-top: 2px;">階段：提案中 · 負責人 Alice</div>
+            </div>
+            <div style="font-weight: 700; color: #60a5fa; font-size: 15px;">NT$ 500,000</div>
+          </a>
+        </section>
+      </div>
+
+      <!-- Right Column: Timeline (Reverse Chronological) -->
+      <section class="panel">
+        <div class="panel-header">
+          <span>歷程時間軸 (依時間倒序排列)</span>
+          <span style="font-size: 12px; color: var(--muted);">共 <span id="interactionCount">2</span> 次互動</span>
+        </div>
+
+        <div class="timeline" id="interactionTimeline">
+          <!-- Item 1 (Newer) -->
+          <div class="timeline-item">
+            <span class="timeline-dot"></span>
+            <div class="timeline-meta">
+              <span class="type-badge">會議</span>
+              <span>2026-03-22 15:30 · 記錄人: Alice</span>
+            </div>
+            <div class="timeline-content">
+              規格初步對焦會議：技術長王大明確認企業版架構需支援自託管容器，並對資安稽核軌跡提出具體規格需求。
+            </div>
+            <div class="timeline-next">
+              👉 下一步行動：依會議結論調整架構提案，於 3 月底前重新送審。
+            </div>
+          </div>
+
+          <!-- Item 2 (Older) -->
+          <div class="timeline-item">
+            <span class="timeline-dot"></span>
+            <div class="timeline-meta">
+              <span class="type-badge">Email</span>
+              <span>2026-03-15 10:00 · 記錄人: Alice</span>
+            </div>
+            <div class="timeline-content">
+              初次寒暄與產品型錄寄送：寄出 CRM 雲端架構白皮書與定價清冊，客戶回覆正在進行年度 IT 預算評估。
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    // Set default datetime to now
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    document.getElementById("interactionTimeInput").value = now.toISOString().slice(0, 16);
+    document.getElementById("nextActionDateInput").value = "2026-09-05";
+
+    function handleLogInteraction(e) {
+      e.preventDefault();
+      const type = document.getElementById("interactionTypeSelect").value;
+      const notes = document.getElementById("interactionNotesInput").value.trim();
+      const nextAction = document.getElementById("nextActionInput").value.trim();
+      const nextDate = document.getElementById("nextActionDateInput").value;
+      const timeStr = document.getElementById("interactionTimeInput").value.replace("T", " ");
+
+      if (!notes) {
+        alert("請輸入聯絡內容摘要！");
+        return;
+      }
+
+      // Prepend to timeline (Reverse Chronological Order)
+      const timeline = document.getElementById("interactionTimeline");
+      const item = document.createElement("div");
+      item.className = "timeline-item";
+      item.innerHTML = `
+        <span class="timeline-dot" style="background: #34d399;"></span>
+        <div class="timeline-meta">
+          <span class="type-badge" style="background: rgba(16, 185, 129, 0.2); color: #6ee7b7;">${type}</span>
+          <span>${timeStr} · 記錄人: Alice (剛剛)</span>
+        </div>
+        <div class="timeline-content">
+          ${notes}
+        </div>
+        ${nextAction ? `<div class="timeline-next">👉 下一步行動：${nextAction} (預計: ${nextDate || "未指定"})</div>` : ""}
+      `;
+      timeline.prepend(item);
+
+      // Update Top Highlight Banner
+      if (nextAction) {
+        document.getElementById("currentNextAction").textContent = nextAction;
+        document.getElementById("currentNextActionDate").textContent = nextDate || "即刻安排";
+      }
+
+      // Update counter
+      const countEl = document.getElementById("interactionCount");
+      countEl.textContent = parseInt(countEl.textContent, 10) + 1;
+
+      // Reset notes field
+      document.getElementById("interactionNotesInput").value = "";
+      alert("聯絡紀錄已成功儲存並同步更新至歷程時間軸頂部！");
+    }
+  </script>
+</body>
+</html>

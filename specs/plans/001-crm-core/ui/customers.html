@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>客戶與公司名冊 - CRM 系統</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --panel: #111827;
+      --card: #1f2937;
+      --card-hover: #283548;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --border: #374151;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --purple: #8b5cf6;
+      --danger: #ef4444;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Navbar */
+    .navbar {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .brand-badge {
+      background: linear-gradient(135deg, var(--primary), var(--purple));
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      color: white;
+      font-size: 16px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 12px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .nav-links a:hover, .nav-links a.active {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .role-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+    }
+
+    .container {
+      max-width: 1300px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .header-title h1 {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .header-title p {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .action-group {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .btn:hover { background: var(--primary-hover); }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+    }
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.12); }
+
+    /* Search & Filter Bar */
+    .search-bar {
+      display: flex;
+      gap: 12px;
+      background: var(--panel);
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .search-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+    }
+
+    /* Companies & Contacts Table */
+    .table-panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th {
+      background: rgba(255, 255, 255, 0.02);
+      padding: 14px 18px;
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 16px 18px;
+      font-size: 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    tr.clickable-row {
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    tr.clickable-row:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .org-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .org-name {
+      font-weight: 700;
+      color: #60a5fa;
+    }
+
+    .org-tag {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .contact-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .contact-name {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .contact-title {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .badge-pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      background: rgba(59, 130, 246, 0.15);
+      color: #93c5fd;
+    }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      display: none;
+      place-items: center;
+      z-index: 1000;
+    }
+
+    .modal-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      width: min(520px, calc(100% - 32px));
+      padding: 24px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+    }
+
+    .form-group input:focus { border-color: var(--primary); }
+
+    .input-error {
+      color: var(--danger);
+      font-size: 12px;
+      margin-top: 4px;
+      display: none;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <nav class="navbar">
+    <a href="index.html" class="brand">
+      <div class="brand-badge">C</div>
+      <span>CRM Core Platform</span>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="index.html">銷售管線 (Pipeline)</a></li>
+      <li><a href="customers.html" class="active">客戶與公司名冊</a></li>
+      <li><a href="opportunity-detail.html">機會推進範例</a></li>
+    </ul>
+
+    <div class="role-badge">
+      <span>登入身分：Carol (業務主管)</span>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="container">
+    <div class="page-header">
+      <div class="header-title">
+        <h1>客戶與公司名冊 (Customers & Companies)</h1>
+        <p>維護目標企業組織與關鍵客戶決策人資料，並檢視過往歷程</p>
+      </div>
+      <div class="action-group">
+        <button class="btn btn-secondary" onclick="openCompanyModal()">+ 建立公司</button>
+        <button class="btn" onclick="openContactModal()">+ 新增客戶聯絡人</button>
+      </div>
+    </div>
+
+    <!-- Search Input -->
+    <div class="search-bar">
+      <span>🔍</span>
+      <input type="text" id="searchInput" class="search-input" placeholder="搜尋公司名稱、客戶姓名、電子郵件或職稱..." oninput="handleSearch()" />
+    </div>
+
+    <!-- Directory Table -->
+    <div class="table-panel">
+      <table>
+        <thead>
+          <tr>
+            <th>所屬公司</th>
+            <th>客戶聯絡人</th>
+            <th>電子郵件</th>
+            <th>聯絡電話</th>
+            <th>主要負責業務</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="directoryBody">
+          <!-- Row 1: 水球軟體 / 王大明 -->
+          <tr class="clickable-row" onclick="location.href='customer-detail.html?id=c1'">
+            <td>
+              <div class="org-cell">
+                <span class="org-name">水球軟體</span>
+                <span class="org-tag">軟體資訊業 · 統編 83294821</span>
+              </div>
+            </td>
+            <td>
+              <div class="contact-cell">
+                <span class="contact-name">王大明</span>
+                <span class="contact-title">技術長 (CTO)</span>
+              </div>
+            </td>
+            <td>daming.wang@test.com</td>
+            <td>0912-345-678</td>
+            <td><span class="badge-pill">Alice</span></td>
+            <td><a href="customer-detail.html?id=c1" class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="event.stopPropagation()">檢視歷程 →</a></td>
+          </tr>
+
+          <!-- Row 2: 鼎新科技 / 李志豪 -->
+          <tr class="clickable-row" onclick="location.href='customer-detail.html?id=c2'">
+            <td>
+              <div class="org-cell">
+                <span class="org-name">鼎新科技</span>
+                <span class="org-tag">智慧製造 · 統編 12948201</span>
+              </div>
+            </td>
+            <td>
+              <div class="contact-cell">
+                <span class="contact-name">李志豪</span>
+                <span class="contact-title">採購部經理</span>
+              </div>
+            </td>
+            <td>chihhao.lee@example.com</td>
+            <td>0922-888-999</td>
+            <td><span class="badge-pill">Alice</span></td>
+            <td><a href="customer-detail.html?id=c2" class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="event.stopPropagation()">檢視歷程 →</a></td>
+          </tr>
+
+          <!-- Row 3: 宏通通訊 / 陳雅婷 -->
+          <tr class="clickable-row" onclick="location.href='customer-detail.html?id=c3'">
+            <td>
+              <div class="org-cell">
+                <span class="org-name">宏通通訊</span>
+                <span class="org-tag">電信通訊 · 統編 55392019</span>
+              </div>
+            </td>
+            <td>
+              <div class="contact-cell">
+                <span class="contact-name">陳雅婷</span>
+                <span class="contact-title">資訊總監</span>
+              </div>
+            </td>
+            <td>yating.chen@hometong.tw</td>
+            <td>0933-777-666</td>
+            <td><span class="badge-pill">Bob</span></td>
+            <td><a href="customer-detail.html?id=c3" class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="event.stopPropagation()">檢視歷程 →</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Modal: Create Company -->
+  <div class="modal-overlay" id="companyModal">
+    <div class="modal-card">
+      <div class="modal-title">
+        <span>建立新公司</span>
+        <button onclick="closeCompanyModal()" style="background: none; border: none; color: var(--muted); cursor: pointer; font-size: 18px;">✕</button>
+      </div>
+      <form onsubmit="handleCreateCompany(event)">
+        <div class="form-group">
+          <label>公司名稱 *</label>
+          <input type="text" id="companyNameInput" placeholder="例如：水球軟體有限公司" required />
+          <div class="input-error" id="companyNameError">請輸入有效的公司名稱</div>
+        </div>
+        <div class="form-group">
+          <label>統一編號 (選填)</label>
+          <input type="text" id="taxIdInput" placeholder="8 位數統編" maxlength="8" />
+        </div>
+        <div class="form-group">
+          <label>產業類別</label>
+          <select id="industryInput">
+            <option value="軟體與網路資訊">軟體與網路資訊</option>
+            <option value="電子製造與硬體">電子製造與硬體</option>
+            <option value="金融與保險科技">金融與保險科技</option>
+            <option value="生技與醫療科技">生技與醫療科技</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>公司地址</label>
+          <input type="text" id="addressInput" placeholder="例如：台北市信義區信義路五段 7 號" />
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeCompanyModal()">取消</button>
+          <button type="submit" class="btn">儲存公司資料</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Create Contact -->
+  <div class="modal-overlay" id="contactModal">
+    <div class="modal-card">
+      <div class="modal-title">
+        <span>新增客戶聯絡人</span>
+        <button onclick="closeContactModal()" style="background: none; border: none; color: var(--muted); cursor: pointer; font-size: 18px;">✕</button>
+      </div>
+      <form onsubmit="handleCreateContact(event)">
+        <div class="form-group">
+          <label>所屬公司 *</label>
+          <select id="targetCompanySelect" required>
+            <option value="水球軟體">水球軟體</option>
+            <option value="鼎新科技">鼎新科技</option>
+            <option value="宏通通訊">宏通通訊</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>聯絡人姓名 *</label>
+          <input type="text" id="contactNameInput" placeholder="例如：王大明" required />
+        </div>
+        <div class="form-group">
+          <label>電子郵件 *</label>
+          <input type="email" id="contactEmailInput" placeholder="name@company.com" required />
+          <div class="input-error" id="emailError">請輸入正確的電子郵件格式 (例如: user@domain.com)</div>
+        </div>
+        <div class="form-group">
+          <label>聯絡電話</label>
+          <input type="tel" id="contactPhoneInput" placeholder="例如：0912-345-678" />
+        </div>
+        <div class="form-group">
+          <label>職稱 / 部門</label>
+          <input type="text" id="contactTitleInput" placeholder="例如：技術長 / 研發部" />
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeContactModal()">取消</button>
+          <button type="submit" class="btn">儲存聯絡人</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openCompanyModal() {
+      document.getElementById("companyModal").style.display = "grid";
+    }
+    function closeCompanyModal() {
+      document.getElementById("companyModal").style.display = "none";
+    }
+
+    function openContactModal() {
+      document.getElementById("contactModal").style.display = "grid";
+    }
+    function closeContactModal() {
+      document.getElementById("contactModal").style.display = "none";
+    }
+
+    function handleCreateCompany(e) {
+      e.preventDefault();
+      const name = document.getElementById("companyNameInput").value.trim();
+      const industry = document.getElementById("industryInput").value;
+      const taxId = document.getElementById("taxIdInput").value.trim();
+
+      if (!name) {
+        document.getElementById("companyNameError").style.display = "block";
+        return;
+      }
+
+      // Add company to targetCompanySelect
+      const select = document.getElementById("targetCompanySelect");
+      const opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = name;
+      select.appendChild(opt);
+
+      closeCompanyModal();
+      alert(`公司「${name}」已成功建立！請接續為其新增聯絡人。`);
+      openContactModal();
+      document.getElementById("targetCompanySelect").value = name;
+    }
+
+    function handleCreateContact(e) {
+      e.preventDefault();
+      const company = document.getElementById("targetCompanySelect").value;
+      const name = document.getElementById("contactNameInput").value.trim();
+      const email = document.getElementById("contactEmailInput").value.trim();
+      const phone = document.getElementById("contactPhoneInput").value.trim() || "未提供";
+      const title = document.getElementById("contactTitleInput").value.trim() || "商務聯絡人";
+
+      if (!email.includes("@")) {
+        document.getElementById("emailError").style.display = "block";
+        return;
+      }
+
+      const tbody = document.getElementById("directoryBody");
+      const tr = document.createElement("tr");
+      tr.className = "clickable-row";
+      tr.onclick = () => location.href = "customer-detail.html";
+      tr.innerHTML = `
+        <td>
+          <div class="org-cell">
+            <span class="org-name">${company}</span>
+            <span class="org-tag">新增企業客戶</span>
+          </div>
+        </td>
+        <td>
+          <div class="contact-cell">
+            <span class="contact-name">${name}</span>
+            <span class="contact-title">${title}</span>
+          </div>
+        </td>
+        <td>${email}</td>
+        <td>${phone}</td>
+        <td><span class="badge-pill">Alice</span></td>
+        <td><a href="customer-detail.html" class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="event.stopPropagation()">檢視歷程 →</a></td>
+      `;
+      tbody.prepend(tr);
+
+      closeContactModal();
+      alert(`聯絡人「${name}」已成功新增至「${company}」！`);
+    }
+
+    function handleSearch() {
+      const q = document.getElementById("searchInput").value.toLowerCase();
+      const rows = document.querySelectorAll("#directoryBody tr");
+      rows.forEach(r => {
+        const text = r.textContent.toLowerCase();
+        r.style.display = text.includes(q) ? "" : "none";
+      });
+    }
+  </script>
+</body>
+</html>
