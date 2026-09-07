@@ -1,0 +1,773 @@
+openapi: 3.0.3
+info:
+  title: CRM Core REST API
+  description: Canonical API contract for CRM Core system managing companies, contacts, interactions, opportunities, and sales pipeline.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/api
+    description: Local development / test server
+
+paths:
+  /me:
+    get:
+      summary: 取得當前登入使用者資訊與角色
+      operationId: getCurrentUser
+      security:
+        - BearerAuth: []
+        - RoleSimAuth: []
+      responses:
+        '200':
+          description: 成功取得當前使用者身分
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /companies:
+    get:
+      summary: 查詢公司清冊
+      operationId: listCompanies
+      security:
+        - BearerAuth: []
+        - RoleSimAuth: []
+      responses:
+        '200':
+          description: 公司清冊列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Company'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+    post:
+      summary: 建立新公司資料
+      operationId: createCompany
+      security:
+        - BearerAuth: []
+        - RoleSimAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCompanyRequest'
+      responses:
+        '201':
+          description: 公司建立成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+
+  /companies/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: 取得指定公司詳細資料與關聯聯絡人
+      operationId: getCompany
+      security:
+        - BearerAuth: []
+        - RoleSimAuth: []
+      responses:
+        '200':
+          description: 公司詳細資訊
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyDetail'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      summary: 更新公司資料
+      operationId: updateCompany
+      security:
+        - BearerAuth: []
+        - RoleSimAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCompanyRequest'
+      responses:
+        '200':
+          description: 公司更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /contacts:
+    get:
+      summary: 查詢客戶聯絡人清冊
+      operationId: listContacts
+      security:
+        - BearerAuth: []
+        - RoleSimAuth: []
+      parameters:
+        - name: company_id
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 客戶聯絡人清冊
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Contact'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+    post:
+      summary: 新增客戶聯絡人
+      operationId: createContact
+      security:
+        - BearerAuth: []
+        - RoleSimAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateContactRequest'
+      responses:
+        '201':
+          description: 客戶聯絡人建立成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contact'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+
+  /contacts/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: 取得客戶詳細資訊（含所屬公司與最新下一步行動摘要）
+      operationId: getContact
+      security:
+        - BearerAuth: []
+        - RoleSimAuth: []
+      responses:
+        '200':
+          description: 客戶詳細資料
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactDetail'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      summary: 更新客戶聯絡人資料（職稱、電話等）
+      operationId: updateContact
+      security:
+        - BearerAuth: []
+        - RoleSimAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateContactRequest'
+      responses:
+        '200':
+          description: 客戶資料更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contact'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /contacts/{id}/interactions:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: 客戶聯絡人 ID
+        schema:
+          type: integer
+    get:
+      summary: 依聯絡時間倒序查詢客戶的所有歷史聯絡歷程
+      operationId: listContactInteractions
+      security:
+        - BearerAuth: []
+        - RoleSimAuth: []
+      responses:
+        '200':
+          description: 聯絡歷程清單 (倒序排列)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Interaction'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    post:
+      summary: 記錄與客戶的聯絡歷程並設定下一步行動
+      operationId: createInteraction
+      security:
+        - BearerAuth: []
+        - RoleSimAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInteractionRequest'
+      responses:
+        '201':
+          description: 聯絡歷程建立成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Interaction'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /opportunities:
+    get:
+      summary: 查詢銷售機會列表（業務主管檢視全體，一般業務僅檢視自己負責之機會）
+      operationId: listOpportunities
+      security:
+        - BearerAuth: []
+        - RoleSimAuth: []
+      parameters:
+        - name: stage
+          in: query
+          schema:
+            $ref: '#/components/schemas/SalesStage'
+        - name: owner_id
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 銷售機會列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Opportunity'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+    post:
+      summary: 建立新銷售機會
+      operationId: createOpportunity
+      security:
+        - BearerAuth: []
+        - RoleSimAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOpportunityRequest'
+      responses:
+        '201':
+          description: 銷售機會建立成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Opportunity'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+
+  /opportunities/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: 取得指定銷售機會詳情
+      operationId: getOpportunity
+      security:
+        - BearerAuth: []
+        - RoleSimAuth: []
+      responses:
+        '200':
+          description: 銷售機會詳細資訊
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Opportunity'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /opportunities/{id}/stage:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    patch:
+      summary: 推進或變更銷售機會階段（僅負責業務或主管可執行，非負責人回傳 403）
+      operationId: updateOpportunityStage
+      security:
+        - BearerAuth: []
+        - RoleSimAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStageRequest'
+      responses:
+        '200':
+          description: 銷售階段推進成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Opportunity'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: 非負責業務且非主管，無權推進階段
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /pipeline:
+    get:
+      summary: 取得銷售管線看板與彙總統計指標
+      operationId: getPipelineSummary
+      security:
+        - BearerAuth: []
+        - RoleSimAuth: []
+      responses:
+        '200':
+          description: 銷售管線資料（主管包含全員數據，業務人員僅含個人數據）
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineSummary'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+    RoleSimAuth:
+      type: apiKey
+      in: header
+      name: X-User-Name
+      description: 測試與模擬身分使用的 Header (e.g. Alice, Bob, Carol)
+
+  schemas:
+    SalesStage:
+      type: string
+      enum: [Prospecting, Contacted, Proposal, ClosedWon, ClosedLost]
+      description: 銷售機會標準五階段
+
+    UserRole:
+      type: string
+      enum: [SalesManager, SalesRep]
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        name:
+          type: string
+        role:
+          $ref: '#/components/schemas/UserRole'
+
+    Company:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        tax_id:
+          type: string
+        industry:
+          type: string
+        address:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    CompanyDetail:
+      allOf:
+        - $ref: '#/components/schemas/Company'
+        - type: object
+          properties:
+            contacts:
+              type: array
+              items:
+                $ref: '#/components/schemas/Contact'
+
+    CreateCompanyRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          example: 水球軟體
+        tax_id:
+          type: string
+          example: 12345678
+        industry:
+          type: string
+          example: 軟體資訊
+        address:
+          type: string
+          example: 台北市信義區信義路五段 7 號
+
+    UpdateCompanyRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        tax_id:
+          type: string
+        industry:
+          type: string
+        address:
+          type: string
+
+    Contact:
+      type: object
+      required: [id, company_id, name, email]
+      properties:
+        id:
+          type: integer
+        company_id:
+          type: integer
+        company_name:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        title:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    ContactDetail:
+      allOf:
+        - $ref: '#/components/schemas/Contact'
+        - type: object
+          properties:
+            latest_next_action:
+              type: string
+            latest_next_action_date:
+              type: string
+              format: date
+
+    CreateContactRequest:
+      type: object
+      required: [company_id, name, email]
+      properties:
+        company_id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: 王大明
+        email:
+          type: string
+          format: email
+          example: daming.wang@test.com
+        phone:
+          type: string
+          example: 0912-345-678
+        title:
+          type: string
+          example: 技術長
+
+    UpdateContactRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        title:
+          type: string
+
+    Interaction:
+      type: object
+      required: [id, contact_id, user_name, type, interaction_time, summary]
+      properties:
+        id:
+          type: integer
+        contact_id:
+          type: integer
+        user_name:
+          type: string
+        type:
+          type: string
+          enum: [Call, Meeting, Email]
+        interaction_time:
+          type: string
+          format: date-time
+        summary:
+          type: string
+        next_action:
+          type: string
+        next_action_date:
+          type: string
+          format: date
+        created_at:
+          type: string
+          format: date-time
+
+    CreateInteractionRequest:
+      type: object
+      required: [type, interaction_time, summary]
+      properties:
+        type:
+          type: string
+          enum: [Call, Meeting, Email]
+          example: Call
+        interaction_time:
+          type: string
+          format: date-time
+          example: 2026-04-01T14:00:00Z
+        summary:
+          type: string
+          example: 完成企業版架構需求訪談
+        next_action:
+          type: string
+          example: 9 月 5 日前提供正式提案
+        next_action_date:
+          type: string
+          format: date
+          example: '2026-09-05'
+
+    Opportunity:
+      type: object
+      required: [id, name, company_id, owner_name, stage, amount, expected_close_date]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          example: 企業版授權合約
+        company_id:
+          type: integer
+        company_name:
+          type: string
+          example: 水球軟體
+        contact_id:
+          type: integer
+        contact_name:
+          type: string
+          example: 王大明
+        owner_user_id:
+          type: integer
+        owner_name:
+          type: string
+          example: Alice
+        stage:
+          $ref: '#/components/schemas/SalesStage'
+        amount:
+          type: number
+          format: double
+          example: 300000.00
+        expected_close_date:
+          type: string
+          format: date
+          example: '2026-06-30'
+        stage_updated_at:
+          type: string
+          format: date-time
+        stage_updated_by:
+          type: string
+          example: Alice
+        created_at:
+          type: string
+          format: date-time
+
+    CreateOpportunityRequest:
+      type: object
+      required: [name, company_id, contact_id, stage, amount, expected_close_date]
+      properties:
+        name:
+          type: string
+          example: 企業版授權合約
+        company_id:
+          type: integer
+          example: 1
+        contact_id:
+          type: integer
+          example: 1
+        stage:
+          $ref: '#/components/schemas/SalesStage'
+        amount:
+          type: number
+          minimum: 0
+          example: 300000
+        expected_close_date:
+          type: string
+          format: date
+          example: '2026-06-30'
+
+    UpdateStageRequest:
+      type: object
+      required: [stage]
+      properties:
+        stage:
+          $ref: '#/components/schemas/SalesStage'
+        amount:
+          type: number
+          minimum: 0
+          description: 可選同步調整預估金額
+
+    StageSummary:
+      type: object
+      properties:
+        stage:
+          $ref: '#/components/schemas/SalesStage'
+        count:
+          type: integer
+          example: 1
+        total_amount:
+          type: number
+          format: double
+          example: 300000.00
+        opportunities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Opportunity'
+
+    PipelineSummary:
+      type: object
+      properties:
+        viewer_role:
+          $ref: '#/components/schemas/UserRole'
+        stages:
+          type: array
+          items:
+            $ref: '#/components/schemas/StageSummary'
+        active_total_amount:
+          type: number
+          format: double
+          description: 進行中階段（潛在、已聯繫、提案中）總金額加總
+          example: 950000.00
+        total_opportunities_count:
+          type: integer
+          example: 4
+
+    ErrorResponse:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          example: FORBIDDEN
+        message:
+          type: string
+          example: 只有銷售機會負責人或主管可推進階段
+        details:
+          type: array
+          items:
+            type: string
+
+  responses:
+    BadRequestError:
+      description: 請求格式錯誤或缺少必要欄位
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    UnauthorizedError:
+      description: 缺少有效身份驗證或連線已逾期
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ForbiddenError:
+      description: 權限不足，拒絕存取或修改
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFoundError:
+      description: 找不到指定資源
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'

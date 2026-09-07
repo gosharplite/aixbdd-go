@@ -1,0 +1,113 @@
+// CRM Core Domain Data Model
+// System Truth: specs/truth/data/schema.dbml
+// Plan Package: 001-crm-core
+// Maintainer: /data-plan
+
+Enum user_role {
+  SalesManager [note: '業務主管：可檢視全團隊管線與指標，具備完整跨人員讀寫權限']
+  SalesRep     [note: '一般業務人員：可檢視客戶基本清冊，但僅能管理自己負責之客戶與商機']
+}
+
+Enum sales_stage {
+  Prospecting  [note: '1. 潛在']
+  Contacted    [note: '2. 已聯繫']
+  Proposal     [note: '3. 提案中']
+  ClosedWon    [note: '4. 已成交 (結案終態)']
+  ClosedLost   [note: '5. 已失敗 (結案終態)']
+}
+
+Enum interaction_type {
+  Call    [note: '電話']
+  Meeting [note: '會議']
+  Email   [note: 'Email 郵件']
+}
+
+Table users {
+  id integer [pk, increment, note: '使用者唯一識別碼']
+  username varchar(50) [not null, unique, note: '登入帳號名稱']
+  name varchar(100) [not null, note: '使用者顯示名稱 (如 Alice, Bob, Carol)']
+  role user_role [not null, default: 'SalesRep', note: '使用者角色']
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`, note: '建立時間']
+
+  Note: '系統使用者與角色權限表'
+}
+
+Table companies {
+  id integer [pk, increment, note: '公司唯一識別碼']
+  name varchar(150) [not null, unique, note: '公司全名']
+  tax_id varchar(20) [null, note: '統一編號或商業登記碼']
+  industry varchar(100) [null, note: '產業類別']
+  address text [null, note: '公司聯絡地址']
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`, note: '建立時間']
+  updated_at timestamp [not null, default: `CURRENT_TIMESTAMP`, note: '最後更新時間']
+
+  Note: '客戶所屬公司實體表。約束：若存在關聯之聯絡人或商機，禁止直接刪除 (RESTRICT)。'
+}
+
+Table contacts {
+  id integer [pk, increment, note: '客戶聯絡人識別碼']
+  company_id integer [not null, note: '所屬公司 ID']
+  name varchar(100) [not null, note: '聯絡人姓名 (如 王大明)']
+  email varchar(255) [not null, note: '電子郵件信箱']
+  phone varchar(50) [null, note: '聯絡電話']
+  title varchar(100) [null, note: '職稱 (如 技術長、產品研發副總)']
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`, note: '建立時間']
+  updated_at timestamp [not null, default: `CURRENT_TIMESTAMP`, note: '最後更新時間']
+
+  indexes {
+    (company_id, name)
+    email
+  }
+
+  Note: '客戶聯絡人表。必須隸屬於特定公司。'
+}
+
+Table interactions {
+  id integer [pk, increment, note: '聯絡歷程紀錄識別碼']
+  contact_id integer [not null, note: '關聯之客戶聯絡人 ID']
+  user_id integer [not null, note: '執行並記錄該聯絡之業務人員 ID']
+  type interaction_type [not null, note: '聯絡方式 (Call, Meeting, Email)']
+  interaction_time timestamp [not null, note: '實際聯絡時間']
+  summary text [not null, note: '聯絡內容摘要']
+  next_action text [null, note: '下一步跟進行動']
+  next_action_date date [null, note: '預計下一步執行日期']
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`, note: '記錄建立時間']
+
+  indexes {
+    (contact_id, interaction_time) [note: '支援依客戶歷程時間倒序高效查詢']
+  }
+
+  Note: '客戶聯絡歷程表。遵循不可更動 (Append-only) 原則，建立後不得任意修改或刪除。'
+}
+
+Table opportunities {
+  id integer [pk, increment, note: '銷售機會識別碼']
+  name varchar(150) [not null, note: '銷售機會名稱 (如 企業版授權合約)']
+  company_id integer [not null, note: '關聯公司 ID']
+  contact_id integer [not null, note: '主要關聯客戶聯絡人 ID']
+  owner_user_id integer [not null, note: '負責業務人員 ID (Alice / Bob)']
+  stage sales_stage [not null, default: 'Prospecting', note: '目前銷售階段']
+  amount decimal(14,2) [not null, default: 0.00, note: '預估金額 (精確至小數點後兩位，不可為負數)']
+  expected_close_date date [not null, note: '預計成交日期']
+  stage_updated_at timestamp [not null, default: `CURRENT_TIMESTAMP`, note: '階段最後變更時間']
+  stage_updated_by integer [not null, note: '階段最後變更人員 ID']
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`, note: '建立時間']
+  updated_at timestamp [not null, default: `CURRENT_TIMESTAMP`, note: '最後更新時間']
+
+  indexes {
+    owner_user_id
+    stage
+    (company_id, stage)
+  }
+
+  Note: '銷售機會實體表。推進規則：僅負責業務本人或業務主管可推進階段或修改金額；非負責人禁止修改 (403)。'
+}
+
+// 外鍵關聯定義
+Ref: contacts.company_id > companies.id [delete: restrict]
+Ref: interactions.contact_id > contacts.id [delete: cascade]
+Ref: interactions.user_id > users.id [delete: restrict]
+Ref: opportunities.company_id > companies.id [delete: restrict]
+Ref: opportunities.contact_id > contacts.id [delete: restrict]
+Ref: opportunities.owner_user_id > users.id [delete: restrict]
+Ref: opportunities.stage_updated_by > users.id [delete: restrict]
