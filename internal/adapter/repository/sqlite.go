@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"time"
 
-	"crm/internal/domain"
+	"github.com/gosharplite/aixbdd-go/internal/domain"
 	_ "modernc.org/sqlite"
 )
 

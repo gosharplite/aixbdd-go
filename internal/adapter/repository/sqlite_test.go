@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"crm/internal/adapter/repository"
-	"crm/internal/domain"
+	"github.com/gosharplite/aixbdd-go/internal/adapter/repository"
+	"github.com/gosharplite/aixbdd-go/internal/domain"
 )
 
 func TestSQLiteRepositories(t *testing.T) {

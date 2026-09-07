@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	crmhttp "crm/internal/adapter/http"
-	"crm/internal/adapter/repository"
-	"crm/internal/domain"
+	crmhttp "github.com/gosharplite/aixbdd-go/internal/adapter/http"
+	"github.com/gosharplite/aixbdd-go/internal/adapter/repository"
+	"github.com/gosharplite/aixbdd-go/internal/domain"
 	"github.com/cucumber/godog"
 	"github.com/cucumber/godog/colors"
 )

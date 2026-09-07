@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"crm/internal/domain"
+	"github.com/gosharplite/aixbdd-go/internal/domain"
 )
 
 type OpportunityService struct {

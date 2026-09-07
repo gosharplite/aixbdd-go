@@ -4,8 +4,8 @@ import (
 	"errors"
 	"net/http"
 
-	"crm/internal/domain"
-	"crm/internal/service"
+	"github.com/gosharplite/aixbdd-go/internal/domain"
+	"github.com/gosharplite/aixbdd-go/internal/service"
 )
 
 type PipelineHandler struct {

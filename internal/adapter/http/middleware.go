@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"crm/internal/domain"
+	"github.com/gosharplite/aixbdd-go/internal/domain"
 )
 
 type contextKey string

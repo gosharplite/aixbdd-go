@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"strings"
 
-	"crm/internal/domain"
+	"github.com/gosharplite/aixbdd-go/internal/domain"
 	"github.com/cucumber/godog"
 )
 

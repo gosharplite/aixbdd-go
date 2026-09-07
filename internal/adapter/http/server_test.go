@@ -5,9 +5,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	crmhttp "crm/internal/adapter/http"
-	"crm/internal/adapter/repository"
-	"crm/internal/domain"
+	crmhttp "github.com/gosharplite/aixbdd-go/internal/adapter/http"
+	"github.com/gosharplite/aixbdd-go/internal/adapter/repository"
+	"github.com/gosharplite/aixbdd-go/internal/domain"
 )
 
 func TestAuthMiddlewareAndMeEndpoint(t *testing.T) {

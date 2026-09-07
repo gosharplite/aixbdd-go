@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"crm/internal/domain"
+	"github.com/gosharplite/aixbdd-go/internal/domain"
 )
 
 type CustomerService struct {

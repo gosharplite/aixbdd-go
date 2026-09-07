@@ -5,8 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"crm/internal/domain"
-	"crm/internal/service"
+	"github.com/gosharplite/aixbdd-go/internal/domain"
+	"github.com/gosharplite/aixbdd-go/internal/service"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )

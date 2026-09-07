@@ -1,4 +1,4 @@
-module crm
+module github.com/gosharplite/aixbdd-go
 
 go 1.26.6
 

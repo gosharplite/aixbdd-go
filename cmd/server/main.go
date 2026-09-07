@@ -10,8 +10,8 @@ import (
 	"syscall"
 	"time"
 
-	crmhttp "crm/internal/adapter/http"
-	"crm/internal/adapter/repository"
+	crmhttp "github.com/gosharplite/aixbdd-go/internal/adapter/http"
+	"github.com/gosharplite/aixbdd-go/internal/adapter/repository"
 )
 
 func main() {

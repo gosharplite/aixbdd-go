@@ -1,6 +1,8 @@
-# CRM Core Platform (CRM 客戶關係管理系統)
+# aixbdd-go: CRM Core Platform (CRM 客戶關係管理系統)
 
 > A high-reliability CRM core platform developed using the **AIBDD (AI × BDD)** methodology. Built with an idiomatic Go backend following Clean Architecture, SQLite persistence, and a 100% automated Gherkin BDD test suite powered by Cucumber Godog.
+
+Repository: [https://github.com/gosharplite/aixbdd-go](https://github.com/gosharplite/aixbdd-go)
 
 ---
 

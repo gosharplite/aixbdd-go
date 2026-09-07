@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	"crm/internal/domain"
+	"github.com/gosharplite/aixbdd-go/internal/domain"
 )
 
 type PipelineService struct {

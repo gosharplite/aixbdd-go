@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"crm/internal/domain"
+	"github.com/gosharplite/aixbdd-go/internal/domain"
 	"github.com/cucumber/godog"
 )
 
