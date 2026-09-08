@@ -77,7 +77,6 @@ Repository: [https://github.com/gosharplite/aixbdd-go](https://github.com/goshar
 │       └── features/                # Executable Gherkin features & DSL dictionaries
 ├── tests/
 │   └── bdd/                         # Godog test suite & step definitions
-├── AIBDD.md                         # AIBDD methodology and workflow SOP
 ├── SESSION-BOOTSTRAP.md             # AI session orientation guide
 ├── STATUS.md                        # Living project status and delivery ledger
 ├── go.mod
@@ -138,6 +137,6 @@ All API endpoints follow OpenAPI 3.0 specification (`specs/truth/contracts/opena
 
 ## 📖 Methodology & Governance
 
-* **Workflow SOP**: See [`AIBDD.md`](AIBDD.md) for the complete PM/RD division of responsibilities.
+* **Workflow SOP**: See the [AIBDD methodology & skills repo](https://github.com/gosharplite/aixbdd) for the complete PM/RD division of responsibilities.
 * **Status & Handoff**: See [`STATUS.md`](STATUS.md) for current iteration status and completed artifacts.
 * **Session Bootstrap**: See [`SESSION-BOOTSTRAP.md`](SESSION-BOOTSTRAP.md) for pre-loaded context and quick start instructions.

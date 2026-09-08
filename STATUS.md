@@ -15,20 +15,20 @@ The initial iteration `001-crm-core` (CRM Core Customer Relationship Management 
 
 | Phase | Artifact | Path | Status | Owner |
 |---|---|---|---|---|
-| **PM** | **Specification** | `specs/plans/001-crm-core/spec.md` | Completed | PM (`/specify`) |
-| **PM** | **Requirements Checklist** | `specs/plans/001-crm-core/checklists/requirements.md` | Completed (100% Ready) | PM (`/specify`) |
-| **PM** | **Acceptance Features** | `specs/plans/001-crm-core/features/acceptance/*.feature` | 4 Feature files verified | PM (`/spec-by-example`) |
-| **PM** | **UI Control Plan** | `specs/plans/001-crm-core/ui/ui-plan.md` | Completed | PM (`/ui-plan`) |
-| **PM** | **Interactive Prototypes** | `specs/plans/001-crm-core/ui/*.html` (`index.html` entry) | 4 Screens verified | PM (`/ui-plan`) |
-| **RD** | **Technical Research** | `specs/plans/001-crm-core/research.md` | Completed | RD (`/technical-research`) |
-| **RD** | **Tech Stack Truth** | `specs/truth/techstack.md` | Completed (Canonical Truth) | RD (`/technical-research`) |
-| **RD** | **System Analysis Plan** | `specs/plans/001-crm-core/plan.md` | Completed | RD (`/system-analysis`) |
-| **RD** | **Data Model Truth** | `specs/truth/data/schema.dbml` | Completed (Canonical Truth) | RD (`/data-plan`) |
-| **RD** | **API Contract Truth** | `specs/truth/contracts/openapi.yaml` | Completed (Canonical Truth) | RD (`/api-plan`) |
-| **RD** | **Executable Features & DSL** | `specs/truth/features/**` | Completed (Canonical Truth) | RD (`/dsl-refine`) |
-| **Shared** | **Truth Delta Ledger** | `specs/plans/001-crm-core/truth-delta.md` | Completed (All Owners ADD) | Shared (`/truth-delta`) |
-| **RD** | **BDD Development Tasks** | `specs/plans/001-crm-core/tasks.md` | Completed (21/21 Tasks Done) | RD (`/tasks`) |
-| **RD** | **Full Implementation & Verification** | `cmd/server/main.go`, `internal/**`, `tests/bdd/**` | 100% Tests Passing (12/12 Scenarios, 65/65 Steps Green) | RD (`/implement`) |
+| **PM** | **Specification** | `specs/plans/001-crm-core/spec.md` | Completed | PM (`/axb-specify`) |
+| **PM** | **Requirements Checklist** | `specs/plans/001-crm-core/checklists/requirements.md` | Completed (100% Ready) | PM (`/axb-specify`) |
+| **PM** | **Acceptance Features** | `specs/plans/001-crm-core/features/acceptance/*.feature` | 4 Feature files verified | PM (`/axb-spec-by-example`) |
+| **PM** | **UI Control Plan** | `specs/plans/001-crm-core/ui/ui-plan.md` | Completed | PM (`/axb-ui-plan`) |
+| **PM** | **Interactive Prototypes** | `specs/plans/001-crm-core/ui/*.html` (`index.html` entry) | 4 Screens verified | PM (`/axb-ui-plan`) |
+| **RD** | **Technical Research** | `specs/plans/001-crm-core/research.md` | Completed | RD (`/axb-technical-research`) |
+| **RD** | **Tech Stack Truth** | `specs/truth/techstack.md` | Completed (Canonical Truth) | RD (`/axb-technical-research`) |
+| **RD** | **System Analysis Plan** | `specs/plans/001-crm-core/plan.md` | Completed | RD (`/axb-system-analysis`) |
+| **RD** | **Data Model Truth** | `specs/truth/data/schema.dbml` | Completed (Canonical Truth) | RD (`/axb-data-plan`) |
+| **RD** | **API Contract Truth** | `specs/truth/contracts/openapi.yaml` | Completed (Canonical Truth) | RD (`/axb-api-plan`) |
+| **RD** | **Executable Features & DSL** | `specs/truth/features/**` | Completed (Canonical Truth) | RD (`/axb-dsl-refine`) |
+| **Shared** | **Truth Delta Ledger** | `specs/plans/001-crm-core/truth-delta.md` | Completed (All Owners ADD) | Shared (`/axb-truth-delta`) |
+| **RD** | **BDD Development Tasks** | `specs/plans/001-crm-core/tasks.md` | Completed (21/21 Tasks Done) | RD (`/axb-tasks`) |
+| **RD** | **Full Implementation & Verification** | `cmd/server/main.go`, `internal/**`, `tests/bdd/**` | 100% Tests Passing (12/12 Scenarios, 65/65 Steps Green) | RD (`/axb-implement`) |
 
 ---
 
@@ -88,5 +88,5 @@ go run cmd/server/main.go
 
 * **Current Iteration (`001-crm-core`)**: Completed, verified, and committed.
 * **Next Steps**:
-  * For new requirements or next iteration features, start a new plan package using `/specify` (e.g., `specs/plans/002-<feature-slug>/`).
+  * For new requirements or next iteration features, start a new plan package using `/axb-specify` (e.g., `specs/plans/002-<feature-slug>/`).
   * System truth specifications in `specs/truth/` remain the authoritative source of truth for all subsequent iterations.
